@@ -52,6 +52,7 @@
     <Compile Include="RtspSession.cs" />
     <Compile Include="RtspSessionStore.cs" />
     <Compile Include="SessionNumberDealer.cs" />
+    <Compile Include="UDPSocket.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

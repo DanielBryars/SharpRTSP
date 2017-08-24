@@ -73,10 +73,11 @@ a=control:streamid=1";
                 String requested_url = announceMessage.RtspUri.ToString();
                 _logger.Info("Announce for " + requested_url);
 
+                var localPathTrimmed = announceMessage.RtspUri.LocalPath.Trim('/');
+                var callId = localPathTrimmed;
+
                 listener.RtspListenerType = RtspListenerType.Announce;
-
-                var callId = announceMessage.RtspUri.LocalPath.Trim('/');
-
+                
                 RtspSession session;
 
                 lock (_lock)
@@ -153,20 +154,54 @@ a=control:streamid=1";
 
                 _logger.Debug($"SetupMessage:{setupMessage}");
 
-                foreach (var transport in setupMessage.GetTransports())
+                var localPathTrimmed = setupMessage.RtspUri.LocalPath.Trim('/');
+                var localPathParts = localPathTrimmed.Split('/');
+                var callId = localPathParts[0];
+                var streamId = localPathParts[1];
+
+                RtspSession session;
+
+                lock (_lock)
                 {
-                    _logger.Debug($"transport:{transport}");
+                    session = _sessions[callId];
                 }
 
-                var setup_response = setupMessage.CreateResponse();
+                PortCouple serverPorts = null;
+                var setupResponse = setupMessage.CreateResponse();
                 switch (listener.RtspListenerType)
                 {
                     case RtspListenerType.Unknown:
                         throw new Exception("No RtspListenerType Set yet");
-                    //case RtspListenerType.Describe:                       
+                    case RtspListenerType.Describe:
+                        switch (streamId)
+                        {
+                            case "streamId=0":
+                                serverPorts = session.UdpPairDescribeStream0.PortCouple;
+                                break;
+                            case "streamId=1":
+                                serverPorts = session.UdpPairDescribeStream1.PortCouple;
+                                break;
+                        }
+                        break;
+                    case RtspListenerType.Announce:
+                        switch (streamId)
+                        {
+                            case "streamId=0":
+                                serverPorts = session.UdpPairAnnounceStream0.PortCouple;
+                                break;
+                            case "streamId=1":
+                                serverPorts = session.UdpPairAnnounceStream1.PortCouple;
+                                break;
+                        }
+                        break;
                 }
+                
+                RtspTransport responseTransport = setupMessage.GetTransports()[0];
+                responseTransport.ServerPort = serverPorts;
 
-                listener.SendMessage(setup_response);
+                setupResponse.Headers[RtspHeaderNames.Transport] = responseTransport.ToString();
+
+                listener.SendMessage(setupResponse);
             }
         }
 
