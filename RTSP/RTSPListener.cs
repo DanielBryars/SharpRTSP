@@ -1,15 +1,15 @@
-﻿namespace Rtsp
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
-    using System.Globalization;
-    using System.IO;
-    using System.Net.Sockets;
-    using System.Text;
-    using System.Threading;
-    using Rtsp.Messages;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Globalization;
+using System.IO;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using Rtsp.Messages;
 
+namespace Rtsp
+{   
     /// <summary>
     /// Rtsp lister
     /// </summary>
@@ -38,7 +38,12 @@
 
             _transport = connection;
             _stream = connection.GetStream();
+
+            RtspListenerType = RtspListenerType.Unknown;
         }
+
+
+        public RtspListenerType RtspListenerType { get; set; }
 
         /// <summary>
         /// Gets the remote address.

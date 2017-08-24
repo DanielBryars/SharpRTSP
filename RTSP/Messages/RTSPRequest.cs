@@ -81,26 +81,22 @@ namespace Rtsp.Messages
                     returnValue = new RtspRequestGetParameter();
                     break;
 
-                    /*
                 case RequestType.ANNOUNCE:
+                    returnValue = new RtspRequestAnnounce();
                     break;
 
                 case RequestType.RECORD:
+                    returnValue = new RtspRequestRecord();
                     break;
-                case RequestType.REDIRECT:
-                    break;
-                
-                case RequestType.SET_PARAMETER:
-                    break;
-                     */
+
+                case RequestType.REDIRECT:                
+                case RequestType.SET_PARAMETER:                    
                 case RequestType.UNKNOWN:
                 default:
                     returnValue = new RtspRequest();
                     break;
             } 
-
-
-             
+ 
             return returnValue;
         }
 
